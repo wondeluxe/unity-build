@@ -25,7 +25,7 @@ namespace WondeluxeEditor.Build
 
 		[BuildOutput]
 		[SerializeField]
-		[Tooltip("Destination path relative to the project folder where the player will be built.")]
+		[Tooltip("Destination path relative to Build Path (set in UserSettings > Wondeluxe > Build) where the built player will be output.")]
 		protected string filePath;
 
 		[BuildOutput]
@@ -58,10 +58,15 @@ namespace WondeluxeEditor.Build
 		[Tooltip("Compiler configuration used when compiling generated C++ code.")]
 		protected Il2CppCompilerConfiguration il2CppCompilerConfiguration = Il2CppCompilerConfiguration.Release;// Only show if scriptingImplementation is IL2CPP.
 
-		[BuildConfig]
+		[BuildConfig(1)]
 		[SerializeField]
 		[Tooltip("Enable the <a href=\"https://docs.unity3d.com/ScriptReference/BuildOptions.StrictMode.html\">StrictMode</a> build option.")]
 		protected bool strictMode;
+
+		[BuildConfig(1)]
+		[SerializeField]
+		[Tooltip("Automatically run the built player.")]
+		protected bool autoRun;
 
 		[BuildContent]
 		[SerializeField]
@@ -110,7 +115,7 @@ namespace WondeluxeEditor.Build
 
 		public string FilePath
 		{
-			get => Regex.Replace(filePath, @"\/+$", "");// Strip trailing / if present.
+			get => Path.Combine(BuildSettings.BuildPath, filePath);
 		}
 
 		/// <summary>
@@ -189,6 +194,15 @@ namespace WondeluxeEditor.Build
 		}
 
 		/// <summary>
+		/// Automatically run the built player.
+		/// </summary>
+
+		public bool AutoRun
+		{
+			get => autoRun;
+		}
+
+		/// <summary>
 		/// A C# source file where the app version and build numbers will be written to. File must contain fields (or constants) named <c>Version</c> and <c>Build</c>.
 		/// </summary>
 
@@ -234,6 +248,11 @@ namespace WondeluxeEditor.Build
 			if (StrictMode)
 			{
 				buildOptions |= BuildOptions.StrictMode;
+			}
+
+			if (AutoRun)
+			{
+				buildOptions |= BuildOptions.AutoRunPlayer;
 			}
 
 			if (clean)
@@ -286,9 +305,9 @@ namespace WondeluxeEditor.Build
 		private bool Il2CppSupported
 		{
 #if UNITY_EDITOR_OSX
-			get => (BuildTarget == BuildTarget.StandaloneOSX);
+			get => (BuildTarget == BuildTarget.StandaloneOSX || BuildTarget == BuildTarget.iOS || BuildTarget == BuildTarget.Android);
 #elif UNITY_EDITOR_WIN
-			get => (BuildTarget == BuildTarget.StandaloneWindows64 || BuildTarget == BuildTarget.StandaloneWindows);
+			get => (BuildTarget == BuildTarget.StandaloneWindows64 || BuildTarget == BuildTarget.StandaloneWindows || BuildTarget == BuildTarget.Android);
 #else
 			get => false;
 #endif
@@ -318,6 +337,11 @@ namespace WondeluxeEditor.Build
 			}
 			else
 			{
+				if (ScriptingImplementation == ScriptingImplementation.IL2CPP)
+				{
+					Debug.LogWarning("Scripting Implementation is set to IL2CPP, but is not supported on the current platform.");
+				}
+
 				PlayerSettings.SetScriptingBackend(NamedBuildTarget, ScriptingImplementation.Mono2x);
 			}
 
