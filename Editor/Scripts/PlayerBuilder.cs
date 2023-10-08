@@ -245,15 +245,7 @@ namespace WondeluxeEditor.Build
 		{
 			BuildOptions buildOptions = BuildOptions.None;
 
-			if (StrictMode)
-			{
-				buildOptions |= BuildOptions.StrictMode;
-			}
-
-			if (AutoRun)
-			{
-				buildOptions |= BuildOptions.AutoRunPlayer;
-			}
+			SetBuildOptions(ref buildOptions);
 
 			if (clean)
 			{
@@ -311,6 +303,19 @@ namespace WondeluxeEditor.Build
 #else
 			get => false;
 #endif
+		}
+
+		internal virtual void SetBuildOptions(ref BuildOptions buildOptions)
+		{
+			if (StrictMode)
+			{
+				buildOptions |= BuildOptions.StrictMode;
+			}
+
+			if (AutoRun)
+			{
+				buildOptions |= BuildOptions.AutoRunPlayer;
+			}
 		}
 
 		internal void ApplyBuildSettings()
