@@ -16,7 +16,7 @@ namespace WondeluxeEditor.Build
 		[AppInfo(-1)]
 		[SerializeField]
 		[Tooltip("Unique identifier for the application bundle.")]
-		private string bundleIdentifier;
+		private string packageName;
 
 		[AppInfo(1)]
 		[SerializeField]
@@ -55,7 +55,7 @@ namespace WondeluxeEditor.Build
 
 		public string BundleIdentifier
 		{
-			get => bundleIdentifier;
+			get => packageName;
 		}
 
 		public string KeystoreFile
