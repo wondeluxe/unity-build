@@ -1,5 +1,5 @@
 {
-  "name": "com.wondeluxe.wondeluxe.build",
+  "name": "com.wondeluxe.build",
   "version": "0.0.1",
   "displayName": "Wondeluxe Build",
   "description": "Library providing objects and scripts to help facilitate CI/CD.",
