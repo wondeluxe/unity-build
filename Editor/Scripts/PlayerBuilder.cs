@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.Callbacks;
+using Wondeluxe;
 
 namespace WondeluxeEditor.Build
 {
@@ -18,63 +19,70 @@ namespace WondeluxeEditor.Build
 	{
 		#region Internal fields
 
-		[PlatformInfo]
 		[SerializeField]
+		[Group("PlatformInfo")]
 		[Tooltip("Platform name of the player. Used for constructing the direcotry name where the built player will be output.")]
 		protected string platformName;
 
-		[BuildOutput]
 		[SerializeField]
+		[Group("BuildOutput")]
 		[Tooltip("Destination path relative to Build Path (set in UserSettings > Wondeluxe > Build) where the built player will be output.")]
 		protected string filePath;
 
-		[BuildOutput]
 		[SerializeField]
+		[Group("BuildOutput")]
 		[Tooltip("File name to use for the output application file.")]
 		protected string fileName;
 
-		[BuildOutput]
 		[SerializeField]
+		[Group("BuildOutput")]
 		[Tooltip("File extension to apply to the output application file. May be left blank.")]
 		protected string fileExtension;
 
-		[AppInfo]
 		[SerializeField]
+		[Group("AppInfo")]
 		[Tooltip("Application version. Typically a <a href=\"https://semver.org/\">Semantic Version</a>.")]
 		protected string version;
 
-		[AppInfo]
 		[SerializeField]
-		[Tooltip("Application build number. Should be incremented on each build.")]
+		[Group("AppInfo")]
+		[Tooltip("Application build number.")]
 		protected uint build;
 
-		[BuildConfig]
 		[SerializeField]
+		[Group("BuildConfig")]
+		[Tooltip("Should Build (application build number) be automatically incremented on each build?")]
+		protected bool autoIncrementBuild = true;
+
+		[SerializeField]
+		[Group("BuildConfig")]
 		[Tooltip("Build scripting framework.")]
 		protected ScriptingImplementation scriptingImplementation = ScriptingImplementation.IL2CPP;// Warn if IL2CPP not supported.
 
-		[BuildConfig]
 		[SerializeField]
+		[Group("BuildConfig")]
 		[Tooltip("Compiler configuration used when compiling generated C++ code.")]
 		protected Il2CppCompilerConfiguration il2CppCompilerConfiguration = Il2CppCompilerConfiguration.Release;// Only show if scriptingImplementation is IL2CPP.
 
-		[BuildConfig(1)]
 		[SerializeField]
+		[Group("BuildConfig")]
+		[Order(10)]
 		[Tooltip("Enable the <a href=\"https://docs.unity3d.com/ScriptReference/BuildOptions.StrictMode.html\">StrictMode</a> build option.")]
 		protected bool strictMode;
 
-		[BuildConfig(1)]
 		[SerializeField]
+		[Group("BuildConfig")]
+		[Order(10)]
 		[Tooltip("Automatically run the built player.")]
 		protected bool autoRun;
 
-		[BuildContent]
 		[SerializeField]
+		[Group("BuildContent")]
 		[Tooltip("A C# source file where the app version and build numbers will be written to. File must contain fields or constants named Version and Build.")]
 		protected TextAsset appScript;
 
-		[BuildContent]
 		[SerializeField]
+		[Group("BuildContent")]
 		[Tooltip("Scenes to be included in the build.")]
 		protected SceneAsset[] scenes;
 
@@ -267,8 +275,13 @@ namespace WondeluxeEditor.Build
 		/// </summary>
 		/// <param name="clean"></param>
 
-		public void BuildPlayer(bool clean = false)
+		public void BuildPlayer(bool clean)
 		{
+			if (autoIncrementBuild)
+			{
+				Build++;
+			}
+
 			ApplyBuildSettings();
 			ApplyPlayerSettings();
 			UpdateAppScript();
@@ -276,6 +289,7 @@ namespace WondeluxeEditor.Build
 			// Not sure if refresh is needed during build step.
 			// Code will be automatically recompiled anyway?
 
+			EditorUtility.SetDirty(this);
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
 
@@ -283,8 +297,22 @@ namespace WondeluxeEditor.Build
 			// May need to implement an async refresh in AssetDatabaseExtensions?
 			// See https://docs.unity3d.com/ScriptReference/EditorApplication.html
 
-			BuildPlayer(GetBuildPlayerOptions(clean), Version, Build);
+			BuildPlayer(GetBuildPlayerOptions(clean), Version, Build, PostBuildProcess);
 		}
+
+		#if UNITY_EDITOR
+		[Button]
+		public void BuildPlayer()
+		{
+			BuildPlayer(false);
+		}
+
+		[Button]
+		public void CleanBuildPlayer()
+		{
+			BuildPlayer(true);
+		}
+		#endif
 
 		#endregion
 
@@ -305,7 +333,7 @@ namespace WondeluxeEditor.Build
 #endif
 		}
 
-		internal virtual void SetBuildOptions(ref BuildOptions buildOptions)
+		protected virtual void SetBuildOptions(ref BuildOptions buildOptions)
 		{
 			if (StrictMode)
 			{
@@ -318,7 +346,7 @@ namespace WondeluxeEditor.Build
 			}
 		}
 
-		internal void ApplyBuildSettings()
+		protected internal void ApplyBuildSettings()
 		{
 			if (EditorUserBuildSettings.activeBuildTarget != BuildTarget)
 			{
@@ -329,7 +357,7 @@ namespace WondeluxeEditor.Build
 			}
 		}
 
-		internal virtual void ApplyPlayerSettings()
+		protected internal virtual void ApplyPlayerSettings()
 		{
 			if (ScriptingImplementation != ScriptingImplementation.IL2CPP)
 			{
@@ -353,7 +381,7 @@ namespace WondeluxeEditor.Build
 			PlayerSettings.bundleVersion = Version;
 		}
 
-		internal void UpdateAppScript()
+		protected internal void UpdateAppScript()
 		{
 			if (AppScript != null)
 			{
@@ -395,6 +423,12 @@ namespace WondeluxeEditor.Build
 			}
 		}
 
+		protected internal virtual void PostBuildProcess(string playerPath)
+		{
+			// Override to perform additional post build actions.
+			Debug.Log($"PostBuildProcess (playerPath = {playerPath})");
+		}
+
 		#endregion
 
 		#region Static fields
@@ -404,6 +438,8 @@ namespace WondeluxeEditor.Build
 		/// </summary>
 
 		private static PlayerBuildInfo currentBuildInfo;
+
+		// private static Action buildPostProcess;
 
 		#endregion
 
@@ -415,10 +451,11 @@ namespace WondeluxeEditor.Build
 		/// <param name="buildPlayerOptions">The <see cref="BuildPlayerOptions"/> used to build the application.</param>
 		/// <param name="version">Build version.</param>
 		/// <param name="build">Build number.</param>
+		/// <param name="postProcess">Callback to run after the build completes.</param>
 
-		public static void BuildPlayer(BuildPlayerOptions buildPlayerOptions, string version, uint build)
+		public static void BuildPlayer(BuildPlayerOptions buildPlayerOptions, string version, uint build, PostBuildProcess postProcess)
 		{
-			currentBuildInfo = new PlayerBuildInfo(version, build);
+			currentBuildInfo = new PlayerBuildInfo(version, build, postProcess);
 
 			BuildReport buildReport = BuildPipeline.BuildPlayer(buildPlayerOptions);
 
@@ -441,11 +478,15 @@ namespace WondeluxeEditor.Build
 		[PostProcessBuild(0)]
 		private static void OnPostProcessBuild(BuildTarget target, string playerPath)
 		{
+			Debug.Log($"OnPostProcessBuild (target = {target}, playerPath = {playerPath})");
+
 			// TODO Could add InfoFile property to PlayerBuilder?
 			// Could be templatable thing where the client can determine the format?
 
 			if (currentBuildInfo != null)
 			{
+				currentBuildInfo.PostProcess?.Invoke(playerPath);
+
 				string infoPath = Path.Combine(Path.GetDirectoryName(playerPath), "VersionInfo.txt");
 				string infoContent = $"{currentBuildInfo.Version}\n{currentBuildInfo.Build}";
 

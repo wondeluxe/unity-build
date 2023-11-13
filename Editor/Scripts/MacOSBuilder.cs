@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Build;
+using Wondeluxe;
 
 namespace WondeluxeEditor.Build
 {
@@ -11,8 +12,9 @@ namespace WondeluxeEditor.Build
 	[CreateAssetMenu(menuName = "Wondeluxe/Build/Mac OS Builder", fileName = "MacOSBuilder")]
 	public sealed class MacOSBuilder : PlayerBuilder
 	{
-		[AppInfo(-1)]
 		[SerializeField]
+		[Group("AppInfo")]
+		[Order(-1)]
 		[Tooltip("Unique identifier for the application bundle.")]
 		private string bundleIdentifier;
 
@@ -36,7 +38,7 @@ namespace WondeluxeEditor.Build
 			get => bundleIdentifier;
 		}
 
-		internal override void ApplyPlayerSettings()
+		protected internal override void ApplyPlayerSettings()
 		{
 			base.ApplyPlayerSettings();
 			PlayerSettings.SetApplicationIdentifier(NamedBuildTarget, BundleIdentifier);

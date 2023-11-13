@@ -67,7 +67,7 @@ namespace WondeluxeEditor.Build
 			BuildPlayerOptions buildPlayerOptions = builder.GetBuildPlayerOptions(args.Clean);
 			buildPlayerOptions.locationPathName = PlayerBuilderUtility.ConstructPlayerPathName(args.BuildPath, builder.FileName, builder.FileExtension, builder.PlatformName, builder.Build);
 
-			PlayerBuilder.BuildPlayer(buildPlayerOptions, builder.Version, builder.Build);
+			PlayerBuilder.BuildPlayer(buildPlayerOptions, builder.Version, builder.Build, builder.PostBuildProcess);
 		}
 	}
 }
