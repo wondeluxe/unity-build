@@ -1,12 +1,12 @@
 {
 	"name": "com.wondeluxe.build",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"displayName": "Wondeluxe Build",
 	"description": "Library providing objects and scripts to help facilitate CI/CD.",
 	"unity": "2020.3",
 	"unityRelease": "48f1",
 	"dependencies": {
-		"com.wondeluxe": "0.0.1"
+		"com.wondeluxe": "1.0.0"
 	},
 	"keywords": [
 		"wondeluxe",
