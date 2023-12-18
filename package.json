@@ -1,6 +1,6 @@
 {
 	"name": "com.wondeluxe.build",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"displayName": "Wondeluxe Build",
 	"description": "Library providing objects and scripts to help facilitate CI/CD.",
 	"unity": "2020.3",
