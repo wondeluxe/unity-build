@@ -5,6 +5,7 @@
 	"description": "Library providing objects and scripts to help facilitate CI/CD.",
 	"unity": "2020.3",
 	"unityRelease": "48f1",
+	"documentationUrl": "https://wondeluxe.github.io/unity-docs/build",
 	"dependencies": {
 		"com.wondeluxe": "1.0.0"
 	},

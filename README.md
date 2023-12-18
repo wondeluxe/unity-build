@@ -4,3 +4,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/wondeluxe/unity-build/blob/main/LICENSE.md)
 
 Unity package providing objects and scripts to help facilitate CI/CD.
+
+- [Documentation](https://wondeluxe.github.io/unity-docs/build)
