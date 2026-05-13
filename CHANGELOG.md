@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.2]
+
+### Added
+
+- Author information to package file.
+
+### Fixed
+
+- Command line build error.
+
 ## [1.0.1] - 2023-12-18
 
 ### Added
