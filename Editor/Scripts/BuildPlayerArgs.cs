@@ -16,7 +16,7 @@ namespace WondeluxeEditor.Build
 		/// The build number to use in the build.
 		/// </summary>
 
-		internal uint Build { get; set; }
+		internal uint BuildNumber { get; set; }
 
 		/// <summary>
 		/// The destination path to build the application to.
@@ -37,7 +37,7 @@ namespace WondeluxeEditor.Build
 
 		public override string ToString()
 		{
-			return $"[Builder = {Builder}, Build = {Build}, BuildPath = {(BuildPath != null ? $"\"{BuildPath}\"" : "null")}, Clean = {Clean}]";
+			return $"[Builder = {Builder}, BuildNumber = {BuildNumber}, BuildPath = {(BuildPath != null ? $"\"{BuildPath}\"" : "null")}, Clean = {Clean}]";
 		}
 
 		/// <summary>
@@ -73,9 +73,9 @@ namespace WondeluxeEditor.Build
 					continue;
 				}
 
-				if (commandLineArgs[i] == "-build")
+				if (commandLineArgs[i] == "-buildNumber")
 				{
-					playerArgs.Build = uint.Parse(commandLineArgs[++i]);
+					playerArgs.BuildNumber = uint.Parse(commandLineArgs[++i]);
 					continue;
 				}
 

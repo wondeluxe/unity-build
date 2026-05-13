@@ -26,7 +26,7 @@ namespace WondeluxeEditor.Build
 			// "WondeluxeEditor.Build.PlayerBuilderCLI.BuildPlayer",
 			// "-builder",
 			// "MacOSBuilder",
-			// "-build",
+			// "-buildNumber",
 			// "41",
 			// "-buildPath",
 			// "/Users/Charlie/Projects/Awesome App/Build/Mac OS"
@@ -52,7 +52,7 @@ namespace WondeluxeEditor.Build
 				throw new Exception($"Builder \"{args.Builder}\" not found.");
 			}
 
-			builder.Build = args.Build;
+			builder.Build = args.BuildNumber;
 			builder.ApplyBuildSettings();
 			builder.ApplyPlayerSettings();
 			builder.UpdateAppScript();
